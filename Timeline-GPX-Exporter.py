@@ -26,17 +26,63 @@ verbose = True
 groupByMonth = True
 
 
-def parse_coords(coord_string):
-    """Parse coördinaten string naar lat/lon tuple"""
-    if not coord_string:
+def parse_coords(coord_data):
+    """
+    Parse coördinaten naar lat/lon tuple
+    
+    Ondersteunt meerdere formaten:
+    - String: "52.123°, 4.567°" of "52.123, 4.567"
+    - Dict: {"latitudeE7": 521230000, "longitudeE7": 45670000}
+    - Dict: {"latitude": 52.123, "longitude": 4.567}
+    - Dict: "geo:52.123,4.567"
+    """
+    if not coord_data:
         return None, None
-    raw = coord_string.replace("°", "").strip()
-    parts = raw.split(", ")
-    if len(parts) == 2:
-        try:
-            return float(parts[0]), float(parts[1])
-        except ValueError:
-            return None, None
+    
+    # String formaat: "52.123°, 4.567°"
+    if isinstance(coord_data, str):
+        # Check voor geo: URI formaat
+        if coord_data.startswith("geo:"):
+            coord_data = coord_data[4:]  # Strip "geo:"
+        
+        raw = coord_data.replace("°", "").strip()
+        parts = raw.split(", ") if ", " in raw else raw.split(",")
+        if len(parts) == 2:
+            try:
+                return float(parts[0]), float(parts[1])
+            except ValueError:
+                return None, None
+        return None, None
+    
+    # Dictionary formaat
+    if isinstance(coord_data, dict):
+        # Formaat met E7 (Google's integer formaat)
+        if "latitudeE7" in coord_data:
+            try:
+                lat = coord_data["latitudeE7"] / 1e7
+                lon = coord_data["longitudeE7"] / 1e7
+                return lat, lon
+            except (KeyError, TypeError):
+                return None, None
+        
+        # Formaat met gewone lat/lng
+        if "latitude" in coord_data:
+            try:
+                return float(coord_data["latitude"]), float(coord_data["longitude"])
+            except (KeyError, TypeError, ValueError):
+                return None, None
+        
+        # Formaat met latLng sub-object
+        if "latLng" in coord_data:
+            return parse_coords(coord_data["latLng"])
+        
+        # Probeer lat/lon keys
+        if "lat" in coord_data:
+            try:
+                return float(coord_data["lat"]), float(coord_data["lon"])
+            except (KeyError, TypeError, ValueError):
+                return None, None
+    
     return None, None
 
 
