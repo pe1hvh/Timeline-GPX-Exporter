@@ -22,9 +22,9 @@ Export:
 - Tracks (<trk>)  timelinePath data (raw GPS punten)
 
 Usage:
-    python timeline_to_gpx.py                    # Standard: both formats
-    python timeline_to_gpx.py --format routes    # Only routes
-    python timeline_to_gpx.py --format tracks    # Only tracks
-    python timeline_to_gpx.py --daily            # Per day 
+  - python timeline_to_gpx.py                    # Standard: both formats
+  - python timeline_to_gpx.py --format routes    # Only routes
+  - python timeline_to_gpx.py --format tracks    # Only tracks
+  - python timeline_to_gpx.py --daily            # Per day 
 
 The GPX log files produced are not perfect, some less forgiving viewers might reject them. However it did what I needed it to do perfectly, so as far as I'm concerned it's certified good enough. If it's good enough for you too, then great, you're welcome. If it's not, well too bad, I have what I needed from it and you're more than welcome to take it and adapt it to suit your needs.
